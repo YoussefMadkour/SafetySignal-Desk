@@ -1,0 +1,18 @@
+Supplier Ingredient Specification: Cocoa Protein Blend
+
+For SKU: CO-COCOA-PRO-60G
+
+Ingredients supplied:
+Whey protein isolate, cocoa powder, chocolate chips, almond butter powder, peanut flour trace blend, natural vanilla flavor.
+
+Allergen Declaration:
+Milk, almonds, peanuts.
+
+Cross-contact warning:
+Peanut flour is used on the same production line and may be present in the cocoa protein blend.
+
+Supplier Lot:
+SUP-77821
+
+Linked Production Batch:
+CO-CPB-0426

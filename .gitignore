@@ -1,0 +1,10 @@
+.env
+agents.json
+__pycache__/
+*.pyc
+.venv/
+venv/
+outputs/*.md
+outputs/*.json
+.DS_Store
+.streamlit/secrets.toml

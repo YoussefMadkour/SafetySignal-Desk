@@ -1,0 +1,18 @@
+Cedar & Oat Foods Product Safety Escalation Policy
+
+A case must be escalated to the Recall Manager if any of the following occur:
+
+1. More than 5 complaints are linked to the same batch within 7 days.
+2. Any complaint mentions urgent care, doctor visit, hospitalization, difficulty breathing, or swelling.
+3. Any undeclared major allergen is suspected.
+4. A retailer reports label inconsistency.
+5. More than 1,000 units remain in market or inventory.
+
+AI agents may recommend actions, but only a human Recall Manager can approve:
+
+- Retailer hold notice.
+- Public recall statement.
+- Regulator notification.
+- Customer-wide notification.
+
+Agents must not tell customers a product is safe if a serious safety signal is under review.

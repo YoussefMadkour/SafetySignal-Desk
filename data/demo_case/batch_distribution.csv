@@ -1,0 +1,6 @@
+batch_code,sku,units_produced,units_sold,units_in_inventory,retailer,location,warehouse_status
+CO-CPB-0426,CO-COCOA-PRO-60G,12000,3000,900,Northstar Market,CA,available
+CO-CPB-0426,CO-COCOA-PRO-60G,12000,2400,700,FitCart Online,Online,available
+CO-CPB-0426,CO-COCOA-PRO-60G,12000,1800,1200,HarvestLane Stores,NY,available
+CO-CPB-0426,CO-COCOA-PRO-60G,12000,1000,1000,WellBasket Retail,TX,available
+CO-CPB-0419,CO-COCOA-PRO-60G,10000,9300,700,Northstar Market,CA,available

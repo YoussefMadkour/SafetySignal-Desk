@@ -1,0 +1,15 @@
+complaint_id,date,channel,customer_message,product,batch_code,severity,location
+C-001,2026-06-13,email,"My son had swelling and hives after eating the Cedar & Oat Cocoa Protein Bar. He has a peanut allergy. The wrapper says almonds but no peanuts.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,high,CA
+C-002,2026-06-13,shopify_review,"I got a rash and itchy throat after eating this bar. I noticed the batch code is CO-CPB-0426.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,high,NY
+C-003,2026-06-14,call_transcript,"Customer reports stomach pain and says they are allergic to peanuts. Product was Cedar & Oat Cocoa Protein Bar batch CO-CPB-0426.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,medium,TX
+C-004,2026-06-14,email,"Retailer report: customer asked whether peanuts are included because they had an allergic reaction. Label only says milk and almonds.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,high,CA
+C-005,2026-06-15,support_chat,"I had shortness of breath after eating the cocoa bar. I went to urgent care. I am allergic to peanuts.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,critical,NY
+C-006,2026-06-15,email,"Bar tasted different and caused throat irritation. Batch CO-CPB-0426.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,medium,Online
+C-007,2026-06-15,shopify_review,"My daughter got hives. She has a known peanut allergy. No peanut warning on label.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,high,CA
+C-008,2026-06-16,call_transcript,"Customer reports allergic reaction after Cedar & Oat bar. Batch number unreadable.",Cedar & Oat Cocoa Protein Bar,,medium,TX
+C-009,2026-06-16,email,"I had swelling and nausea after eating Cedar & Oat Cocoa Protein Bar batch CO-CPB-0426.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,high,NY
+C-010,2026-06-16,email,"The label says almonds but not peanuts. My allergy symptoms started 20 minutes after eating.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,high,Online
+C-011,2026-06-17,support_chat,"Upset stomach after product. No allergy mentioned.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,low,CA
+C-012,2026-06-17,email,"Retailer says multiple customers asked about peanuts in this batch.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,medium,CA
+C-013,2026-06-17,call_transcript,"Customer went to doctor after reaction. Mentions peanut allergy.",Cedar & Oat Cocoa Protein Bar,CO-CPB-0426,critical,TX
+C-014,2026-06-18,email,"Complaint about rash. Customer bought from FitCart Online.",Cedar & Oat Cocoa Protein Bar,UNKNOWN,medium,Online
