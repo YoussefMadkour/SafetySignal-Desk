@@ -1,0 +1,36 @@
+Case: Cedar & Oat Cocoa Protein Bar / CO-CPB-0426 (openFDA live)
+
+[runtime] Band room: 55a9cb21-63c7-47b0-8a2d-3f07c5e41edd
+[runtime]   Room created: 55a9cb21-63c7-47b0-8a2d-3f07c5e41edd
+[runtime]   + Pattern Detection Agent
+[runtime]   + Label and Ingredient Agent
+[runtime]   + Batch Trace Agent
+[runtime]   + Recall Precedent Agent
+[runtime]   + Regulatory Risk Agent
+[runtime]   + Customer and Retailer Response Agent
+[runtime]   + Human Recall Manager (human)
+[runtime] Kickoff posted → @Complaint Intake Agent
+[runtime] Complaint Intake Agent triggered (have: [])
+  [finding] Complaint Intake Agent  →@ Pattern Detection Agent, Label and Ingredient Agent
+[runtime] Label and Ingredient Agent triggered (have: ['complaint_intake'])
+[runtime] Pattern Detection Agent triggered (have: ['complaint_intake'])
+  [veto  ] Label and Ingredient Agent  →@ Regulatory Risk Agent, Recall Precedent Agent, Batch Trace Agent
+[runtime] Recall Precedent Agent triggered (have: ['label_ingredient'])
+  [handoff] Pattern Detection Agent  →@ Label and Ingredient Agent, Batch Trace Agent, Regulatory Risk Agent
+[runtime] Batch Trace Agent triggered (have: ['label_ingredient', 'pattern_detection'])
+  [finding] Batch Trace Agent  →@ Customer and Retailer Response Agent, Regulatory Risk Agent
+[runtime] Regulatory Risk Agent triggered (have: ['batch_trace', 'label_ingredient', 'pattern_detection', 'recall_precedent'])
+  [finding] Recall Precedent Agent  →@ Regulatory Risk Agent, Customer and Retailer Response Agent
+[runtime] Customer and Retailer Response Agent triggered (have: ['batch_trace', 'recall_precedent', 'regulatory_risk'])
+  [veto  ] Regulatory Risk Agent  →@ Customer and Retailer Response Agent, Human Recall Manager
+  [draft ] Customer and Retailer Response Agent  →@ Human Recall Manager
+[runtime] Pipeline complete — Customer Response posted drafts; awaiting human decision.
+[runtime] Auto-approving as Recall Manager (demo mode).
+  [human_action] Human Recall Manager  →@ Customer and Retailer Response Agent
+
+Room: 55a9cb21-63c7-47b0-8a2d-3f07c5e41edd  |  messages emitted: 8
+Risk: CRITICAL (100/100) → HUMAN_REVIEW_REQUIRED
+Packet:  /Users/youssefmadkour/Documents/KourysApps/SafetySignal/outputs/safety_decision_packet.md
+Audit:   /Users/youssefmadkour/Documents/KourysApps/SafetySignal/outputs/audit_trail.json
+
+View the live transcript in the Band web app (app.band.ai).
