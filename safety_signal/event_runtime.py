@@ -156,18 +156,33 @@ async def run_event_driven(
                               info["name"])
         ))
 
-    await asyncio.sleep(3.0)  # let all sockets join their channels
+    await asyncio.sleep(5.0)  # let all sockets join their channels
 
     # Kickoff: relay the Recall Manager opening the case (Human API is gated).
     gw = clients.get("regulatory_risk") or next(iter(clients.values()))
     prefix, mentions = build_mentions(["complaint_intake"], registry)
-    gw.post_message(
-        chat_id,
+    kickoff_text = (
         f"{prefix} Case {case.case_id} opened by the Recall Manager for {case.product}, "
-        f"batch {case.batch_code}. Please extract complaint facts and begin the review.",
-        mentions,
+        f"batch {case.batch_code}. Please extract complaint facts and begin the review."
     )
+    gw.post_message(chat_id, kickoff_text, mentions)
     log("Kickoff posted → @Complaint Intake Agent")
+
+    # Join-race guard: if a socket finished joining *after* the kickoff was sent,
+    # the first agent never sees it (Band doesn't replay pre-join messages) and
+    # the whole pipeline stalls. Re-post the kickoff until the first agent acts.
+    # The per-agent run-once guard makes re-posting harmless.
+    async def _kickoff_guard():
+        for _ in range(3):
+            await asyncio.sleep(7.0)
+            if collected or terminal_event.is_set():
+                return
+            log("No activity yet — re-sending kickoff (join-race guard).")
+            try:
+                gw.post_message(chat_id, kickoff_text, mentions)
+            except Exception as exc:
+                log(f"[ws] kickoff re-post failed: {exc}")
+    guard_task = asyncio.create_task(_kickoff_guard())
 
     try:
         await asyncio.wait_for(terminal_event.wait(), timeout=timeout)
@@ -188,9 +203,10 @@ async def run_event_driven(
             on_emit(dec)
 
     stop.set()
+    guard_task.cancel()
     for t in tasks:
         t.cancel()
-    await asyncio.gather(*tasks, return_exceptions=True)
+    await asyncio.gather(guard_task, *tasks, return_exceptions=True)
     return session, chat_id, collected
 
 
