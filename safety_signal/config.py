@@ -91,47 +91,62 @@ AGENTS: list[AgentSpec] = [
         key="complaint_intake",
         name="Complaint Intake Agent",
         handle="complaint_intake_agent",
-        role="Extract structured safety facts from raw complaints.",
+        role=("Reads raw consumer complaints and extracts structured safety facts — "
+              "symptoms, allergen mentions, batch codes, and medical escalations. Opens "
+              "every case and hands the facts to Pattern Detection and Label & Ingredient."),
         inputs=["complaints.csv"],
     ),
     AgentSpec(
         key="pattern_detection",
         name="Pattern Detection Agent",
         handle="pattern_detection_agent",
-        role="Determine whether complaints form a meaningful safety cluster.",
+        role=("Determines whether complaints form a meaningful safety cluster, measuring "
+              "same-batch concentration and signal strength over time. Confirms (or rejects) "
+              "that there's a real event worth escalating."),
     ),
     AgentSpec(
         key="label_ingredient",
         name="Label and Ingredient Agent",
         handle="label_ingredient_agent",
-        role="Compare the consumer label against supplier ingredient information.",
+        role=("Compares the consumer label against the supplier ingredient sheet to catch "
+              "undeclared allergens. Flags mismatches such as undeclared peanut and escalates "
+              "to Regulatory Risk, Recall Precedent, and Batch Trace."),
         inputs=["consumer_label.txt", "supplier_ingredient_sheet.txt"],
     ),
     AgentSpec(
         key="batch_trace",
         name="Batch Trace Agent",
         handle="batch_trace_agent",
-        role="Quantify affected product exposure (deterministic).",
+        role=("Quantifies affected product exposure — units produced, sold, and still in "
+              "market across retailers and locations. Deterministic only (no model "
+              "inference), so the figures are audit-grade."),
         inputs=["batch_distribution.csv"],
     ),
     AgentSpec(
         key="recall_precedent",
         name="Recall Precedent Agent",
         handle="recall_precedent_agent",
-        role="Find public recall precedents for similar undeclared-allergen issues.",
+        role=("Pulls real recall precedents from the openFDA Food Enforcement database for "
+              "similar undeclared-allergen events, and summarizes how they inform the "
+              "expected action."),
     ),
     AgentSpec(
         key="regulatory_risk",
         name="Regulatory Risk Agent",
         handle="regulatory_risk_agent",
-        role="Classify operational risk and require human review.",
+        role=("Scores operational risk on a transparent 100-point rubric, checks "
+              "company-policy escalation triggers, and blocks unsafe automatic action — "
+              "routing the decision to the human recall manager. Operational escalation "
+              "only; not legal, medical, or regulatory advice."),
         inputs=["company_policy.txt"],
     ),
     AgentSpec(
         key="customer_response",
         name="Customer and Retailer Response Agent",
         handle="customer_response_agent",
-        role="Draft safe communications. It cannot send anything.",
+        role=("Drafts cautious retailer hold notices, customer replies, and internal QA "
+              "tasks — always marked DRAFT and never sent. Requires human approval before "
+              "any external communication."),
     ),
 ]
 
