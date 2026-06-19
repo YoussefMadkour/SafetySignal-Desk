@@ -33,7 +33,8 @@ def run(case, state, llm=None) -> AgentOutput:
     drafts = _deterministic(case)
 
     # Optional LLM polish (kept within strict safe-language constraints).
-    if llm is not None:
+    used_llm = False
+    if llm is not None and getattr(llm, "enabled", False):
         prompt = (
             f"Product: {case.product}. Batch: {case.batch_code}. "
             f"Suspected undeclared allergen: {(case.undeclared or ['none'])[0]}. "
@@ -47,10 +48,12 @@ def run(case, state, llm=None) -> AgentOutput:
                 v = out.get(k)
                 if isinstance(v, str) and v.strip():
                     drafts[k] = v if v.strip().upper().startswith("DRAFT") else f"DRAFT — {v.strip()}"
+                    used_llm = True
 
     structured = {
         "agent": "customer_response",
         "requires_human_approval": True,
+        "reasoning_mode": "llm" if used_llm else "deterministic",
         **drafts,
     }
     summary = ("Drafted retailer hold notice, customer support reply, internal QA task, and "

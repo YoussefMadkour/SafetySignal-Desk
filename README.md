@@ -62,9 +62,15 @@ finding** (a Band event) and an **@mention handoff** (a Band message).
 | 7 | Customer & Retailer Response | LLM + deterministic | DRAFT comms (not approved) → Human Recall Manager |
 | — | **Human Recall Manager** | **you** | approve / reject — captured in Band |
 
-**Hybrid brains:** arithmetic and scoring are deterministic Python (stable,
-auditable); language-heavy work uses the AI/ML API with a deterministic fallback
-so the demo never depends on the network.
+**Hybrid brains:** arithmetic, scoring, batch exposure, and the
+undeclared-allergen detection are deterministic Python (stable, auditable and
+never model-generated); language-heavy work — complaint extraction, label
+reasoning, precedent summarization, the risk rationale, and the draft comms —
+uses an OpenAI-compatible LLM (we run `gpt-5.4-mini`) with a deterministic
+fallback so the demo never depends on the network. The LLM can phrase a finding
+but can never move a number or a decision; every finding is tagged
+`reasoning_mode: llm | deterministic`, and `python -m scripts.selftest` asserts
+that invariant end-to-end.
 
 ## Why Band Is Essential
 

@@ -31,14 +31,33 @@ _DECISION_LABELS = {
 }
 
 
+_AGENT_LABELS = [
+    ("complaint_summary", "Complaint Intake Agent"),
+    ("pattern_summary", "Pattern Detection Agent"),
+    ("label_summary", "Label & Ingredient Agent"),
+    ("batch_trace_summary", "Batch Trace Agent"),
+    ("recall_precedent_summary", "Recall Precedent Agent"),
+    ("regulatory_risk_summary", "Regulatory Risk Agent"),
+    ("response_drafts", "Customer & Retailer Response Agent"),
+]
+
+
+def _md_escape(text: str) -> str:
+    """Make free text safe to drop inside a Markdown table cell."""
+    return str(text).replace("|", "\\|").replace("\n", " ").strip()
+
+
 def build_packet(state: SafetySignalState, case: CaseData) -> str:
     f = case.facts
     e = case.exposure
+    intake = state.complaint_summary or {}
+    label = state.label_summary or {}
+    precedent = state.recall_precedent_summary or {}
     rr = state.regulatory_risk_summary or {}
     drafts = state.response_drafts or {}
     decision = state.human_decision or {}
 
-    # Map agent summaries from the audit trail by agent name.
+    # Agent summaries (one-liners) from the audit trail, keyed by Band name.
     by_name = {m.agent_name: m.summary for m in state.audit_trail}
 
     risk_level = rr.get("risk_level", "CRITICAL")
@@ -57,12 +76,6 @@ def build_packet(state: SafetySignalState, case: CaseData) -> str:
         f"{e.units_in_inventory:,} units remain in inventory or retailer channels.",
     ]
 
-    recommended = rr.get("recommended_actions", [])
-    blocked = rr.get("blocked_actions", [])
-
-    def _sec(name):
-        return by_name.get(name, "—")
-
     lines = [
         "# Safety Decision Packet",
         "",
@@ -79,44 +92,90 @@ def build_packet(state: SafetySignalState, case: CaseData) -> str:
     ]
     lines += [f"{i}. {x}" for i, x in enumerate(findings, 1)]
 
-    lines += [
-        "",
-        "## Agent Findings",
-        "",
-        "### Complaint Intake Agent",
-        _sec("Complaint Intake Agent"),
-        "",
-        "### Pattern Detection Agent",
-        _sec("Pattern Detection Agent"),
-        "",
-        "### Label & Ingredient Agent",
-        _sec("Label and Ingredient Agent"),
-        "",
-        "### Batch Trace Agent",
-        _sec("Batch Trace Agent"),
-        "",
-        "### Recall Precedent Agent",
-        _sec("Recall Precedent Agent"),
-        "",
-        "### Regulatory Risk Agent",
-        _sec("Regulatory Risk Agent"),
-        "",
-        "### Customer & Retailer Response Agent",
-        _sec("Customer and Retailer Response Agent"),
-        "",
-        "## Recommended Actions",
+    # ---- AI reasoning (LLM-generated, grounded in deterministic facts) ----
+    reasoning = [
+        ("Complaint Intake", intake.get("intake_summary")),
+        ("Label & Ingredient", label.get("analysis")),
+        ("Recall Precedent", precedent.get("precedent_analysis")),
+        ("Regulatory Risk", rr.get("reason")),
     ]
-    lines += [f"- {a}" for a in recommended]
-    lines += ["", "## Blocked Actions"]
-    lines += [f"- {a}" for a in blocked]
+    reasoning = [(name, text) for name, text in reasoning if text]
+    if reasoning:
+        lines += ["", "## Agent Reasoning"]
+        for name, text in reasoning:
+            lines += [f"**{name}.** {text}", ""]
+        lines = lines[:-1]  # drop trailing blank
 
+    # ---- Risk scoring breakdown (deterministic 100-point rubric) ----
+    breakdown = rr.get("score_breakdown") or {}
+    if breakdown:
+        lines += [
+            "",
+            f"## Risk Scoring ({rr.get('risk_score', '?')}/100 — {risk_level})",
+            "",
+            "| Category | Points | Max | Basis |",
+            "| --- | ---: | ---: | --- |",
+        ]
+        for cat, d in breakdown.items():
+            lines.append(
+                f"| {_md_escape(cat)} | {d.get('points', 0)} | {d.get('max', 0)} "
+                f"| {_md_escape(d.get('reason', ''))} |"
+            )
+        triggers = rr.get("policy_triggers") or []
+        if triggers:
+            lines += ["", "**Company-policy escalation triggers fired:**"]
+            lines += [f"- {t}" for t in triggers]
+
+    # ---- Public recall precedents (real openFDA records, verbatim) ----
+    patterns = precedent.get("similar_recall_patterns") or []
+    if patterns:
+        src = ", ".join(precedent.get("sources_used") or []) or "openFDA Food Enforcement"
+        lines += [
+            "",
+            f"## Public Recall Precedents ({precedent.get('precedent_match', 'NONE')} match)",
+            f"_Source: {src}._",
+            "",
+            "| Recalling Firm | Recall # | Class | Reason |",
+            "| --- | --- | --- | --- |",
+        ]
+        for p in patterns:
+            lines.append(
+                f"| {_md_escape(p.get('recalling_firm', '—'))} "
+                f"| {_md_escape(p.get('recall_number', '—'))} "
+                f"| {_md_escape(p.get('classification', '—'))} "
+                f"| {_md_escape(p.get('reason', '—'))} |"
+            )
+        rec_lang = precedent.get("recommended_language")
+        if rec_lang:
+            lines += ["", f"**Recommended consumer-notice language:** {rec_lang}"]
+
+    # ---- One-line agent findings (the Band handoff summaries) ----
+    lines += ["", "## Agent Findings", ""]
+    for _, label_name in _AGENT_LABELS:
+        lines += [f"### {label_name}", by_name.get(label_name, "—"), ""]
+    lines = lines[:-1]
+
+    lines += ["", "## Recommended Actions"]
+    lines += [f"- {a}" for a in rr.get("recommended_actions", [])]
+    lines += ["", "## Blocked Actions"]
+    lines += [f"- {a}" for a in rr.get("blocked_actions", [])]
+
+    # ---- All four drafts (none sendable without human approval) ----
     lines += [
         "",
-        "## Draft Retailer Hold Notice",
+        "## Draft Communications (NOT sent — require human approval)",
+        "",
+        "### Retailer Hold Notice",
         drafts.get("retailer_hold_notice", "—"),
         "",
-        "## Draft Customer Support Response",
+        "### Customer Support Reply",
         drafts.get("customer_support_reply", "—"),
+        "",
+        "### Internal QA Task",
+        drafts.get("internal_qa_task", "—"),
+        "",
+        "### Public Statement Draft",
+        drafts.get("public_statement_draft", "—"),
         "",
         "## Human Decision",
     ]
@@ -128,6 +187,21 @@ def build_packet(state: SafetySignalState, case: CaseData) -> str:
         ]
     else:
         lines.append("- Pending human recall manager decision.")
+
+    # ---- Provenance: which findings are deterministic vs AI-generated ----
+    modes = []
+    for slot, label_name in _AGENT_LABELS:
+        mode = (getattr(state, slot, {}) or {}).get("reasoning_mode")
+        if mode:
+            modes.append(f"- {label_name}: {mode}")
+    lines += [
+        "",
+        "## Reasoning Provenance",
+        "Scores, counts, batch exposure, and the undeclared-allergen detection are "
+        "computed deterministically and are not model-generated. Where an agent's "
+        "language is AI-generated it is marked `llm` below.",
+    ]
+    lines += modes or ["- (all deterministic — no LLM configured)"]
 
     lines += [
         "",

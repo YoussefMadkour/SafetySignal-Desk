@@ -6,8 +6,32 @@ automatic messaging.
 """
 from __future__ import annotations
 
+import json
+
 from .. import scoring
-from .base import AgentOutput
+from .base import SAFETY_PREAMBLE, AgentOutput, apply_narrative
+
+_SYSTEM = (
+    SAFETY_PREAMBLE + " You are a regulatory-risk analyst. The risk score, "
+    "level, and decision are already computed deterministically and are FIXED — "
+    "do not restate or change any number. Write only a concise rationale "
+    "grounded in the provided breakdown and policy triggers. This is an "
+    "operational escalation, not legal, medical, or regulatory advice."
+)
+
+
+def _llm_rationale(case, risk, triggers, llm) -> dict | None:
+    user = (
+        f"Product: {case.product} (batch {case.batch_code}).\n"
+        f"Computed risk: {risk.level} (score {risk.score}/100), "
+        f"decision {risk.decision}.\n"
+        f"Score breakdown: {json.dumps(risk.breakdown, indent=2)}\n"
+        f"Company-policy triggers that fired: {json.dumps(triggers)}\n\n"
+        "Return JSON with key \"reason\": a 2-4 sentence professional rationale "
+        "explaining why this case warrants the stated risk level and human "
+        "review, citing the breakdown categories and triggers above."
+    )
+    return llm.complete_json(_SYSTEM, user)
 
 RECOMMENDED_ACTIONS = [
     "Place affected batch on internal hold",
@@ -64,6 +88,15 @@ def run(case, state, llm=None) -> AgentOutput:
         "disclaimer": ("Operational escalation only. Not legal, medical, or regulatory advice."),
         "confidence": 0.9,
     }
+
+    used_llm = False
+    if llm is not None and getattr(llm, "enabled", False):
+        # The LLM may rephrase only the rationale; score/level/decision are fixed.
+        used_llm = apply_narrative(
+            structured, _llm_rationale(case, risk, triggers, llm),
+            text_fields=("reason",),
+        )
+    structured["reasoning_mode"] = "llm" if used_llm else "deterministic"
     summary = (
         f"Risk {risk.level} (score {risk.score}/100) — {risk.decision}. "
         f"{len(triggers)} company-policy escalation triggers fired. "

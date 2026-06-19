@@ -19,6 +19,52 @@ from ..schemas import AgentMessage
 
 _JSON_FENCE = re.compile(r"```json\s*(\{.*?\})\s*```", re.DOTALL)
 
+# Shared system preamble for every LLM-backed agent. Keeps the model strictly
+# grounded in the deterministic facts it is handed — no invented numbers, firms,
+# recall ids, or dates — and inside the case's safety guardrails.
+SAFETY_PREAMBLE = (
+    "You assist a product-safety recall review in a regulated context. "
+    "Use ONLY the facts provided in the user message. Never invent or alter "
+    "numbers, company names, recall identifiers, dates, or quantities. Never "
+    "state that a product is safe, and never confirm, order, or rule out a "
+    "recall. If a fact is not provided, omit it rather than guessing. "
+    "Return STRICT JSON only, containing exactly the requested keys."
+)
+
+
+def apply_narrative(
+    structured: dict,
+    llm_out: dict | None,
+    *,
+    text_fields: tuple[str, ...] = (),
+    list_fields: tuple[str, ...] = (),
+) -> bool:
+    """Overlay only whitelisted *language* fields from an LLM response.
+
+    Numeric / decision fields are never touched — the LLM can phrase findings
+    but cannot change the deterministic ground truth. ``text_fields`` are
+    replaced outright; ``list_fields`` are unioned with any existing
+    deterministic entries (order-preserving). Returns True if the LLM
+    contributed at least one field, so callers can tag ``reasoning_mode``.
+    """
+    if not isinstance(llm_out, dict):
+        return False
+    applied = False
+    for k in text_fields:
+        v = llm_out.get(k)
+        if isinstance(v, str) and v.strip():
+            structured[k] = v.strip()
+            applied = True
+    for k in list_fields:
+        v = llm_out.get(k)
+        if isinstance(v, list):
+            cleaned = [str(x).strip() for x in v if str(x).strip()]
+            if cleaned:
+                existing = structured.get(k) if isinstance(structured.get(k), list) else []
+                structured[k] = list(dict.fromkeys([*existing, *cleaned]))
+                applied = True
+    return applied
+
 
 def embed_json(text: str, data: dict) -> str:
     """Append a fenced JSON block so the mentioned agent can read the sender's
