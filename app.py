@@ -35,122 +35,131 @@ DISCLAIMER = (
     "notices, or regulatory filings. All high-stakes actions require human approval."
 )
 
-# message type -> (emoji, label background, label text color)
+# message type -> (emoji, label background, label text color) — warm console palette
 TYPE_STYLE = {
-    "finding":      ("🔎", "#e0edff", "#1d4ed8"),
-    "handoff":      ("🤝", "#efe6ff", "#6d28d9"),
-    "challenge":    ("⚠️", "#fef3c7", "#b45309"),
-    "veto":         ("⛔", "#fee2e2", "#b91c1c"),
-    "draft":        ("✉️", "#cffafe", "#0e7490"),
-    "human_action": ("🧑‍⚖️", "#dcfce7", "#15803d"),
-    "final_packet": ("📦", "#e2e8f0", "#334155"),
+    "finding":      ("🔎", "rgba(47,83,83,0.10)",   "#2F5353"),
+    "handoff":      ("🤝", "rgba(104,144,143,0.16)", "#3c605f"),
+    "challenge":    ("⚠️", "rgba(205,157,92,0.16)",  "#a9772f"),
+    "veto":         ("⛔", "rgba(156,66,33,0.14)",   "#9c4221"),
+    "draft":        ("✉️", "rgba(47,83,83,0.08)",    "#213C43"),
+    "human_action": ("🧑‍⚖️", "rgba(43,73,52,0.12)",  "#2B4934"),
+    "final_packet": ("📦", "rgba(216,201,177,0.35)", "#5B6763"),
 }
 
-# per-agent avatar initials + accent color
+# per-agent avatar initials + accent color — tones drawn from the console palette
 AGENT_META = {
-    "Complaint Intake Agent":                ("CI", "#2563eb"),
-    "Pattern Detection Agent":               ("PD", "#7c3aed"),
-    "Label and Ingredient Agent":            ("LI", "#db2777"),
-    "Batch Trace Agent":                     ("BT", "#0891b2"),
-    "Recall Precedent Agent":                ("RP", "#ca8a04"),
-    "Regulatory Risk Agent":                 ("RR", "#dc2626"),
-    "Customer and Retailer Response Agent":  ("CR", "#0d9488"),
-    "Human Recall Manager":                  ("RM", "#059669"),
+    "Complaint Intake Agent":                ("CI", "#2F5353"),
+    "Pattern Detection Agent":               ("PD", "#68908F"),
+    "Label and Ingredient Agent":            ("LI", "#a9772f"),
+    "Batch Trace Agent":                     ("BT", "#213C43"),
+    "Recall Precedent Agent":                ("RP", "#8a6a3a"),
+    "Regulatory Risk Agent":                 ("RR", "#9c4221"),
+    "Customer and Retailer Response Agent":  ("CR", "#2B4934"),
+    "Human Recall Manager":                  ("RM", "#3d6b4a"),
 }
 
-RISK_COLOR = {"LOW": "#16a34a", "MEDIUM": "#d97706", "HIGH": "#ea580c", "CRITICAL": "#dc2626"}
+RISK_COLOR = {"LOW": "#2B4934", "MEDIUM": "#CD9D5C", "HIGH": "#a9772f", "CRITICAL": "#9c4221"}
 
 st.markdown(
     """
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
-      :root{ --ink:#0d1526; --muted:#64748b; --line:#e6e8ec; --accent:#0f766e;
-        --font:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;
-        --display:'Bricolage Grotesque','IBM Plex Sans',sans-serif;
+      @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+      :root{ --page:#FAF4E8; --card:#FEFBF5; --ink:#162526; --muted:#5B6763;
+        --teal:#2F5353; --teal-deep:#213C43; --green:#2B4934;
+        --amber:#CD9D5C; --amber-deep:#a9772f;
+        --amber-dim:rgba(205,157,92,0.14); --teal-dim:rgba(47,83,83,0.07); --green-dim:rgba(43,73,52,0.10);
+        --line:rgba(165,167,160,0.45); --line-strong:rgba(91,103,99,0.32); --accent:#2F5353;
+        --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+        --display:'Archivo Black','Arial Black',system-ui,sans-serif;
         --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace; }
-      .stApp{ background:
-        radial-gradient(900px 520px at 10% -8%, rgba(15,118,110,.07), transparent 60%),
-        radial-gradient(820px 500px at 112% -2%, rgba(37,99,235,.05), transparent 55%),
-        #f3f5f7; }
+      .stApp{ background:var(--page); }
       .stApp, .stApp p, .stApp li, .stApp label, .stApp .stMarkdown,
       .stApp .stButton button, .stApp textarea, .stApp input{ font-family:var(--font); }
       .block-container{ padding-top:1.4rem; max-width:1180px; }
-      h1,h2,h3,h4{ color:var(--ink); letter-spacing:-0.015em; font-family:var(--display); }
+      h1,h2,h3,h4{ color:var(--ink); font-family:var(--display); text-transform:uppercase;
+        letter-spacing:0; }
       @keyframes ssRise{ from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
 
       /* ---- header banner ---- */
-      .ss-header{ background:linear-gradient(120deg,#0b1220 0%,#10243b 55%,#0f3b34 100%);
-        border-radius:16px; padding:22px 26px; color:#fff; display:flex;
+      .ss-header{ background:var(--card); border:1px solid var(--line);
+        border-radius:16px; padding:20px 26px; color:var(--ink); display:flex;
         align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
-        box-shadow:0 10px 30px rgba(8,18,32,.18); margin-bottom:6px;
+        box-shadow:0 6px 16px rgba(22,37,38,0.04); margin-bottom:6px;
         animation:ssRise .6s ease both; }
       .ss-header-main{ display:flex; align-items:center; gap:16px; }
-      .ss-logo{ font-size:2.1rem; line-height:1; filter:drop-shadow(0 2px 6px rgba(0,0,0,.3)); }
-      .ss-title{ font-family:var(--display); font-size:1.9rem; font-weight:800; letter-spacing:-0.02em; }
-      .ss-sub{ color:#9fb3c8; font-size:0.92rem; margin-top:2px; }
+      .ss-logo{ font-size:2.0rem; line-height:1; }
+      .ss-title{ font-family:var(--display); text-transform:uppercase; font-size:1.55rem;
+        line-height:1; color:var(--ink); }
+      .ss-sub{ color:var(--muted); font-size:11px; font-weight:600; letter-spacing:0.16em;
+        text-transform:uppercase; margin-top:6px; }
       .ss-header-side{ display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
-      .ss-chip{ display:inline-block; padding:5px 12px; border-radius:999px; font-size:0.8rem;
-        font-weight:600; white-space:nowrap; }
-      .ss-chip-case{ background:rgba(255,255,255,.10); color:#e2e8f0; border:1px solid rgba(255,255,255,.18);
-        font-family:var(--mono); letter-spacing:-0.02em; }
-      .ss-chip-on{ background:#10b981; color:#04231a; }
-      .ss-chip-off{ background:#f59e0b; color:#3a2503; }
+      .ss-chip{ display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:999px;
+        font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; white-space:nowrap;
+        border:1px solid var(--line-strong); }
+      .ss-chip-case{ background:var(--card); color:var(--muted); font-family:var(--mono);
+        letter-spacing:0.04em; text-transform:none; }
+      .ss-chip-on{ background:var(--green-dim); color:var(--green); border-color:var(--green); }
+      .ss-chip-off{ background:var(--amber-dim); color:var(--amber-deep); border-color:var(--amber); }
 
       /* ---- section labels ---- */
-      .ss-sec{ display:flex; align-items:center; gap:10px; margin:26px 0 12px; }
-      .ss-sec h3{ margin:0; font-size:1.15rem; }
+      .ss-sec{ display:flex; align-items:center; gap:12px; margin:28px 0 14px; }
+      .ss-sec h3{ margin:0; font-size:1.0rem; color:var(--teal); }
       .ss-sec .ss-rule{ flex:1; height:1px; background:var(--line); }
 
       /* ---- timeline cards ---- */
       .ss-row{ display:flex; gap:12px; align-items:flex-start; margin-bottom:10px;
         animation:ssRise .45s cubic-bezier(.21,.6,.35,1) both; }
       .ss-avatar{ flex:none; width:38px; height:38px; border-radius:50%; color:#fff;
-        font-weight:800; font-size:0.82rem; display:flex; align-items:center;
-        justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.12); margin-top:2px; }
-      .ss-card{ flex:1; border:1px solid var(--line); border-left:4px solid var(--c,#2563eb);
-        border-radius:12px; padding:12px 16px; background:#fff;
-        box-shadow:0 1px 2px rgba(16,24,40,.04); }
+        font-weight:700; font-size:0.82rem; display:flex; align-items:center;
+        justify-content:center; box-shadow:0 2px 6px rgba(22,37,38,.12); margin-top:2px; }
+      .ss-card{ flex:1; border:1px solid var(--line); border-left:3px solid var(--c,var(--teal));
+        border-radius:12px; padding:12px 16px; background:var(--card);
+        box-shadow:0 6px 16px rgba(22,37,38,0.03); }
       .ss-card-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
       .ss-agent{ font-weight:700; font-size:0.95rem; color:var(--ink); }
-      .ss-pill{ padding:2px 9px; border-radius:999px; font-size:0.7rem; font-weight:700;
-        text-transform:uppercase; letter-spacing:.03em; }
+      .ss-pill{ padding:2px 9px; border-radius:5px; font-size:0.66rem; font-weight:700;
+        text-transform:uppercase; letter-spacing:.08em; }
       .ss-conf{ margin-left:auto; color:var(--muted); font-size:0.74rem; font-family:var(--mono); }
-      .ss-summary{ margin-top:6px; font-size:0.9rem; line-height:1.45; color:#1f2937; }
+      .ss-summary{ margin-top:6px; font-size:0.9rem; line-height:1.5; color:var(--ink); }
       .ss-ments{ margin-top:8px; display:flex; gap:6px; flex-wrap:wrap; }
-      .ss-ment{ background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; border-radius:6px;
+      .ss-ment{ background:var(--teal-dim); color:var(--teal); border:1px solid var(--line); border-radius:6px;
         padding:1px 7px; font-size:0.72rem; font-weight:600; }
 
       /* ---- risk banner + gauge ---- */
-      .ss-risk{ display:flex; gap:22px; align-items:center; background:#fff; border:1px solid var(--line);
-        border-radius:16px; padding:18px 22px; box-shadow:0 1px 2px rgba(16,24,40,.04);
+      .ss-risk{ display:flex; gap:22px; align-items:center; background:var(--card); border:1px solid var(--line);
+        border-radius:16px; padding:18px 22px; box-shadow:0 6px 16px rgba(22,37,38,0.03);
         animation:ssRise .5s ease both; }
       .ss-gauge{ width:118px; height:118px; border-radius:50%; display:flex; align-items:center;
         justify-content:center; flex:none; }
-      .ss-gauge-hole{ width:88px; height:88px; border-radius:50%; background:#fff; display:flex;
+      .ss-gauge-hole{ width:88px; height:88px; border-radius:50%; background:var(--card); display:flex;
         flex-direction:column; align-items:center; justify-content:center; }
-      .ss-gauge-score{ font-family:var(--mono); font-size:2.0rem; font-weight:600; line-height:1; }
+      .ss-gauge-score{ font-family:var(--display); font-size:1.9rem; line-height:1; color:var(--ink); }
       .ss-gauge-of{ font-family:var(--mono); font-size:0.72rem; color:var(--muted); margin-top:2px; }
       .ss-risk-info{ flex:1; }
       .ss-risk-level{ display:inline-block; padding:3px 12px; border-radius:999px; color:#fff;
-        font-weight:800; font-size:0.82rem; letter-spacing:.03em; }
-      .ss-risk-decision{ font-size:1.15rem; font-weight:800; color:var(--ink); margin-top:8px; }
+        font-weight:700; font-size:0.78rem; letter-spacing:.06em; text-transform:uppercase; }
+      .ss-risk-decision{ font-size:1.15rem; font-weight:700; color:var(--ink); margin-top:8px; }
       .ss-risk-meta{ color:var(--muted); font-size:0.85rem; margin-top:3px; }
 
       /* ---- evidence grid ---- */
       .ss-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px; }
-      .ss-tile{ border:1px solid var(--line); border-top:3px solid var(--a,#2563eb); border-radius:12px;
-        padding:14px 16px; background:#fff; box-shadow:0 1px 2px rgba(16,24,40,.04);
+      .ss-tile{ border:1px solid var(--line); border-top:3px solid var(--a,var(--teal)); border-radius:12px;
+        padding:14px 16px; background:var(--card); box-shadow:0 6px 16px rgba(22,37,38,0.03);
         animation:ssRise .5s ease both; }
       .ss-tile-ic{ font-size:1.1rem; }
       .ss-tile-label{ text-transform:uppercase; letter-spacing:.05em; font-size:0.7rem;
         color:var(--muted); font-weight:700; margin-top:4px; }
-      .ss-tile-val{ font-size:1.25rem; font-weight:800; color:var(--ink); margin-top:2px; line-height:1.2; }
-      .ss-tile-sub{ font-size:0.8rem; color:#475569; margin-top:4px; line-height:1.4; }
+      .ss-tile-val{ font-family:var(--display); font-size:1.4rem; color:var(--ink); margin-top:4px; line-height:1.1; }
+      .ss-tile-sub{ font-size:0.8rem; color:var(--muted); margin-top:4px; line-height:1.4; }
       @media (max-width:820px){ .ss-grid{ grid-template-columns:1fr; } }
 
       /* ---- buttons ---- */
-      .stButton>button{ border-radius:10px; font-weight:600; }
-      div[data-testid="stSidebar"] .stButton>button{ border:1px solid var(--line); }
+      .stButton>button{ border-radius:8px; font-weight:700; border:1px solid var(--line-strong);
+        background:var(--card); color:var(--ink); }
+      .stButton>button:hover{ background:#fff; border-color:var(--teal); }
+      .stButton>button[kind="primary"]{ background:var(--teal); color:#fff; border-color:var(--teal); }
+      .stButton>button[kind="primary"]:hover{ background:var(--teal-deep); border-color:var(--teal-deep); }
+      div[data-testid="stSidebar"] .stButton>button{ border:1px solid var(--line-strong); }
     </style>
     """,
     unsafe_allow_html=True,
