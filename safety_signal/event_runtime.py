@@ -184,13 +184,44 @@ async def run_event_driven(
                 log(f"[ws] kickoff re-post failed: {exc}")
     guard_task = asyncio.create_task(_kickoff_guard())
 
+    # Catch-up poll: WebSocket delivery can occasionally drop a push, which would
+    # silently stall the chain. Every few seconds, re-read the room over REST and
+    # feed every message through each pending agent (handle() is idempotent, and
+    # each handoff message carries the sender's finding as embedded JSON). A
+    # missed @mention is recovered on the next poll, so the pipeline always
+    # converges even if some WebSocket frames never arrive.
+    reader = next(iter(clients.values()))
+
+    async def _catchup_poll():
+        while not stop.is_set():
+            await asyncio.sleep(3.0)
+            if terminal_event.is_set():
+                continue
+            try:
+                rows = await asyncio.to_thread(reader.list_messages, chat_id)
+            except Exception:
+                continue
+            for row in rows:
+                for node in list(nodes.values()):
+                    if not node.done:
+                        try:
+                            await node.handle(row)
+                        except Exception:
+                            pass
+    poll_task = asyncio.create_task(_catchup_poll())
+
+    completed = False
     try:
         await asyncio.wait_for(terminal_event.wait(), timeout=timeout)
+        completed = True
         log("Pipeline complete — Customer Response posted drafts; awaiting human decision.")
     except asyncio.TimeoutError:
         log(f"Timed out after {timeout}s; agents reached: {[m.agent_name for m in collected]}")
 
-    if auto_approve:
+    if auto_approve and not completed:
+        log("Pipeline did not complete — NOT auto-approving (no rubber-stamp on an "
+            "incomplete review).")
+    if auto_approve and completed:
         await asyncio.sleep(1.0)
         log("Auto-approving as Recall Manager (demo mode).")
         dec = session.submit_decision(
@@ -204,9 +235,10 @@ async def run_event_driven(
 
     stop.set()
     guard_task.cancel()
+    poll_task.cancel()
     for t in tasks:
         t.cancel()
-    await asyncio.gather(guard_task, *tasks, return_exceptions=True)
+    await asyncio.gather(guard_task, poll_task, *tasks, return_exceptions=True)
     return session, chat_id, collected
 
 
