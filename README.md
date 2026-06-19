@@ -12,6 +12,8 @@ and requires human approval.
 > Tracks: **Regulated & High-Stakes Workflows** (primary), **Internal Enterprise
 > Workflows** (secondary).
 
+![SafetySignal Desk — case overview](docs/01_overview.png)
+
 ---
 
 ## Problem
@@ -45,6 +47,30 @@ inventory and retailer channels.
 The system detects the cluster, finds the undeclared-peanut mismatch, quantifies
 exposure, compares **real FDA recall precedents**, scores the case **CRITICAL**,
 blocks unsafe messaging, and escalates to the human recall manager.
+
+## Walkthrough
+
+**1. The agents coordinate in a real Band room** — each posts a structured finding and @mentions the next specialist.
+
+![Band investigation room — agent findings and @mention handoffs](docs/02_band_room.png)
+
+**2. Everything converges on the Evidence Board** — a deterministic CRITICAL 100/100, with every tile backed by a finding, and unsafe actions blocked.
+
+![Evidence Board — CRITICAL 100/100 and blocked actions](docs/03_evidence_board.png)
+
+**3. A human recall manager makes the call** — the AI prepares the recommended actions but cannot act without approval.
+
+![Human Recall Manager decision panel with recommended actions](docs/04_human_decision.png)
+
+### This is really Band, not a simulation
+
+The same run is visible in the Band web app — every agent is a registered Band participant, and the handoffs are real `@mention` messages in one shared room.
+
+![Band room transcript in the Band web app](docs/05_band_transcript.png)
+
+![Registered Band agents](docs/06_band_agents.png)
+
+> 🎬 A full narrated walkthrough is in [`demo/safetysignal_demo.mp4`](demo/safetysignal_demo.mp4).
 
 ## Agent Architecture
 
