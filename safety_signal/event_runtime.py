@@ -72,8 +72,16 @@ class AgentNode:
     state: dict = field(default_factory=dict)
     done: bool = False
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    acked: set = field(default_factory=set)
 
     async def handle(self, msg: dict) -> None:
+        # 0) Acknowledge the execution so Band shows it Processed, not Waiting.
+        #    Best-effort, fire-and-forget, once per message id.
+        msg_id = msg.get("id")
+        if msg_id and msg_id not in self.acked:
+            self.acked.add(msg_id)
+            asyncio.create_task(asyncio.to_thread(self._ack, msg_id))
+
         # 1) Absorb any upstream findings carried in the Band message.
         for data in base.extract_jsons(msg.get("content") or ""):
             ak = data.get("agent")
@@ -95,6 +103,14 @@ class AgentNode:
             self.emit(out_msg)
         if self.is_terminal:
             self.terminal_event.set()
+
+    def _ack(self, msg_id: str) -> None:
+        """Mark this inbound message processing→processed on Band (best-effort)."""
+        for fn in (self.client.mark_processing, self.client.mark_processed):
+            try:
+                fn(self.chat_id, msg_id)
+            except Exception:
+                pass
 
     def _run_and_publish(self) -> AgentMessage | None:
         try:
