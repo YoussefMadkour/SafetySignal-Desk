@@ -19,16 +19,49 @@ import uvicorn
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, StreamingResponse
-from starlette.routing import Route
+from starlette.routing import Mount, Route
+from starlette.staticfiles import StaticFiles
 
 from safety_signal import event_runtime
 from safety_signal.case import load_case
 
 HERE = Path(__file__).resolve().parent
+ASSETS = HERE.parent / "demo" / "assets"   # reuse the deck's fonts/images
 
 # Each connected browser gets a queue; broadcasts fan out to all of them.
 _subscribers: set[asyncio.Queue] = set()
 _run = {"task": None}
+_case_cache = {"data": None}
+
+
+def _build_case_summary() -> dict:
+    """Load the demo case (cached) and return the input-panel summary."""
+    if _case_cache["data"] is None:
+        case = load_case(fetch_precedents=True)
+        f, e = case.facts, case.exposure
+        prec = case.precedents or {}
+        _case_cache["data"] = {
+            "product": case.product,
+            "batch": case.batch_code,
+            "case_id": case.case_id,
+            "complaint_count": f.complaint_count,
+            "target_batch_count": f.target_batch_count,
+            "span_days": f.span_days,
+            "medical_escalations": f.medical_escalations,
+            "label_allergens": case.label_allergens,
+            "supplier_allergens": case.supplier_allergens,
+            "undeclared": case.undeclared,
+            "units_in_inventory": e.units_in_inventory,
+            "units_produced": e.units_produced,
+            "retailers": e.retailers_affected,
+            "precedent_count": len(prec.get("results", [])),
+            "precedent_live": bool(prec.get("_live")),
+            "sample_complaints": [
+                {"id": c.complaint_id, "severity": c.severity, "msg": c.customer_message}
+                for c in case.complaints[:4]
+            ],
+        }
+    return _case_cache["data"]
 
 
 def _broadcast(event: dict) -> None:
@@ -72,6 +105,13 @@ async def homepage(request: Request) -> FileResponse:
     return FileResponse(HERE / "index.html")
 
 
+async def case_data(request: Request) -> JSONResponse:
+    try:
+        return JSONResponse(await asyncio.to_thread(_build_case_summary))
+    except Exception as exc:
+        return JSONResponse({"error": f"{type(exc).__name__}: {exc}"}, status_code=500)
+
+
 async def start(request: Request) -> JSONResponse:
     if _run["task"] and not _run["task"].done():
         return JSONResponse({"status": "already-running"})
@@ -104,8 +144,10 @@ async def events(request: Request) -> StreamingResponse:
 
 app = Starlette(routes=[
     Route("/", homepage),
+    Route("/case", case_data),
     Route("/start", start, methods=["POST"]),
     Route("/events", events),
+    Mount("/assets", app=StaticFiles(directory=str(ASSETS)), name="assets"),
 ])
 
 

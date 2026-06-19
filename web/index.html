@@ -5,126 +5,157 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SafetySignal Desk — Live Autonomous Review</title>
 <style>
+  @import "/assets/fonts.css";
+
   :root {
-    --ground: #0E141B; --surface: #151E29; --surface-2: #1C2937;
-    --text: #EAEEF2; --muted: #93A4B6; --line: rgba(234,238,242,0.12);
-    --line-strong: rgba(234,238,242,0.22);
-    --signal: #F0A53C; --signal-dim: rgba(240,165,60,0.14);
-    --recall: #E04A3F; --recall-dim: rgba(224,74,63,0.14);
-    --ok: #36C18B; --ok-dim: rgba(54,193,139,0.14);
-    --sans: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    --mono: ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --page: #FAF4E8; --card: #FEFBF5; --ink: #162526;
+    --teal: #2F5353; --teal-deep: #213C43; --green: #2B4934;
+    --paleteal: #B3CEC8; --softteal: #68908F;
+    --amber: #CD9D5C; --amber-deep: #a9772f;
+    --amber-dim: rgba(205,157,92,0.14); --teal-dim: rgba(47,83,83,0.07); --green-dim: rgba(43,73,52,0.10);
+    --muted: #5B6763; --sand: #D8C9B1; --beige: #CBBAA0;
+    --line: rgba(165,167,160,0.45); --line-strong: rgba(91,103,99,0.32);
+    --display: "Archivo Black","Arial Black",system-ui,sans-serif;
+    --sans: "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--ground); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
 
   header {
     display: flex; align-items: center; gap: 16px;
-    padding: 14px clamp(16px,3vw,32px);
-    border-bottom: 1px solid var(--line); position: sticky; top: 0;
-    background: rgba(14,20,27,0.9); backdrop-filter: blur(10px); z-index: 10;
+    padding: 14px clamp(16px,3vw,34px);
+    border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10;
+    background: rgba(250,244,232,0.88); backdrop-filter: blur(10px);
   }
-  .brand { font-weight: 700; letter-spacing: -0.01em; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; }
-  .brand .glyph { color: var(--signal); }
-  .sub { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .brand { font-family: var(--display); text-transform: uppercase; font-size: 1.0rem; letter-spacing: 0; display: flex; align-items: center; gap: 10px; color: var(--ink); }
+  .brand .glyph { color: var(--amber); }
+  .sub { font-family: var(--sans); font-weight: 600; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
   .spacer { flex: 1; }
   .pill {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); border: 1px solid var(--line); border-radius: 100px; padding: 6px 12px;
-    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+    font-family: var(--sans); font-weight: 600; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); border: 1px solid var(--line-strong); border-radius: 100px; padding: 6px 13px;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap; background: var(--card);
   }
   .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-  .pill.live { color: var(--signal); border-color: var(--signal); }
-  .pill.live .dot { background: var(--signal); animation: pulse 1.6s ease-out infinite; }
-  .pill.done { color: var(--ok); border-color: var(--ok); }
-  .pill.done .dot { background: var(--ok); animation: none; }
-  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(240,165,60,.6)} 70%{box-shadow:0 0 0 7px rgba(240,165,60,0)} 100%{box-shadow:0 0 0 0 rgba(240,165,60,0)} }
+  .pill.live { color: var(--teal); border-color: var(--teal); background: var(--teal-dim); }
+  .pill.live .dot { background: var(--amber); animation: pulse 1.6s ease-out infinite; }
+  .pill.done { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+  .pill.done .dot { background: var(--green); }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(205,157,92,.6)} 70%{box-shadow:0 0 0 7px rgba(205,157,92,0)} 100%{box-shadow:0 0 0 0 rgba(205,157,92,0)} }
 
-  button#start {
-    font-family: var(--sans); font-weight: 650; font-size: 0.92rem;
-    background: var(--signal); color: #1a1205; border: none; border-radius: 6px;
-    padding: 10px 18px; cursor: pointer; transition: opacity .2s, transform .05s;
+  button {
+    font-family: var(--sans); font-weight: 700; font-size: 0.92rem; cursor: pointer;
+    border-radius: 8px; padding: 10px 18px; border: 1px solid transparent; transition: opacity .2s, transform .05s, background .2s;
   }
-  button#start:hover { opacity: 0.92; }
-  button#start:active { transform: translateY(1px); }
-  button#start:disabled { background: var(--surface-2); color: var(--muted); cursor: default; }
+  button:active { transform: translateY(1px); }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-primary:hover { background: var(--teal-deep); }
+  .btn-primary:disabled { background: #e7ddca; color: var(--muted); cursor: default; }
+  .btn-ghost { background: var(--card); color: var(--ink); border-color: var(--line-strong); }
+  .btn-ghost:hover { background: #fff; }
+  .btn-load { background: var(--amber); color: #2a1d08; font-size: 1rem; padding: 13px 26px; }
+  .btn-load:hover { filter: brightness(1.03); }
+  .btn-load:disabled { background: var(--green-dim); color: var(--green); cursor: default; }
 
-  .layout { display: grid; grid-template-columns: 320px 1fr; gap: 0; min-height: calc(100vh - 61px); }
-  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+  .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 61px); }
+  @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
 
-  /* ---- agent rail ---- */
+  /* agent rail */
   .rail { border-right: 1px solid var(--line); padding: 22px clamp(14px,2vw,22px); }
-  .rail h2 { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 16px; }
+  .rail h2 { font-family: var(--sans); font-weight: 700; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 16px; }
   .node {
-    display: flex; align-items: flex-start; gap: 12px; padding: 11px 12px; border-radius: 8px;
-    border: 1px solid var(--line); margin-bottom: 9px; background: var(--surface);
-    transition: border-color .3s, background .3s, box-shadow .3s; position: relative;
+    display: flex; align-items: flex-start; gap: 12px; padding: 11px 13px; border-radius: 12px;
+    border: 1px solid var(--line); margin-bottom: 9px; background: var(--card);
+    transition: border-color .3s, background .3s, box-shadow .3s; box-shadow: 0 6px 16px rgba(22,37,38,0.03);
   }
   .node .ic { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); margin-top: 5px; flex: none; transition: background .3s, box-shadow .3s; }
-  .node .nm { font-weight: 600; font-size: 0.92rem; line-height: 1.25; }
-  .node .st { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
-  .node.active { border-color: var(--signal); background: var(--signal-dim); box-shadow: 0 0 0 1px var(--signal-dim); }
-  .node.active .ic { background: var(--signal); box-shadow: 0 0 10px var(--signal); }
-  .node.flash { border-color: var(--signal); }
-  .node.acted { border-color: var(--line-strong); }
-  .node.acted .ic { background: var(--ok); }
-  .node.crit { border-color: var(--recall); background: var(--recall-dim); }
-  .node.crit .ic { background: var(--recall); box-shadow: 0 0 10px var(--recall); }
+  .node .nm { font-weight: 700; font-size: 0.92rem; line-height: 1.25; color: var(--ink); }
+  .node .st { font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
+  .node.active { border-color: var(--teal); background: var(--teal-dim); }
+  .node.active .ic { background: var(--teal); box-shadow: 0 0 9px rgba(47,83,83,0.5); }
+  .node.flash { border-color: var(--amber); }
+  .node.acted .ic { background: var(--green); }
+  .node.crit { border-color: var(--amber); background: var(--amber-dim); }
+  .node.crit .ic { background: var(--amber); box-shadow: 0 0 10px rgba(205,157,92,0.6); }
   .node.human { border-style: dashed; }
-  .node.human.acted .ic { background: var(--ok); }
+  .node.human.acted .ic { background: var(--green); }
 
-  /* ---- feed ---- */
-  .feed-wrap { display: flex; flex-direction: column; min-height: 0; }
-  .banner {
-    margin: 18px clamp(16px,3vw,30px) 0; border-radius: 8px; padding: 16px 20px;
-    display: none; align-items: center; gap: 16px;
-  }
+  .main { padding: 22px clamp(16px,3vw,30px) 50px; }
+
+  /* ---- case file panel (the input step) ---- */
+  .loadbox { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; max-width: 60ch; padding: 30px 0; }
+  .loadbox .eyebrow { font-family: var(--sans); font-weight: 600; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); display: flex; gap: 12px; align-items: center; }
+  .loadbox .eyebrow::before { content:""; width: 26px; height: 2px; background: var(--teal); }
+  .loadbox h1 { font-family: var(--display); text-transform: uppercase; font-size: clamp(2rem,4.5vw,3.2rem); line-height: 0.98; margin: 0; }
+  .loadbox p { color: var(--muted); font-size: 1.02rem; line-height: 1.55; margin: 0; }
+
+  .casepanel { display: none; }
+  .casepanel.show { display: block; }
+  .case-head { font-family: var(--sans); font-weight: 700; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--teal); margin: 4px 0 14px; display: flex; gap: 12px; align-items: center; }
+  .case-head::before { content:""; width: 26px; height: 2px; background: var(--teal); }
+  .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .stats { grid-template-columns: repeat(2,1fr); } }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: 0 6px 16px rgba(22,37,38,0.03); }
+  .stat .v { font-family: var(--display); font-size: 1.7rem; line-height: 1; color: var(--ink); }
+  .stat .l { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-top: 7px; }
+  .mismatch { background: var(--amber-dim); border: 1px solid var(--amber); border-radius: 12px; padding: 14px 18px; margin-bottom: 16px; }
+  .mismatch .t { font-weight: 700; color: var(--amber-deep); margin-bottom: 4px; }
+  .mismatch .d { font-size: 0.95rem; color: var(--ink); line-height: 1.5; }
+  .complaints { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 6px 18px; box-shadow: 0 6px 16px rgba(22,37,38,0.03); }
+  .cmp { padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; line-height: 1.5; }
+  .cmp:last-child { border-bottom: none; }
+  .cmp .id { font-family: var(--sans); font-weight: 700; font-size: 10px; letter-spacing: 0.06em; color: var(--teal); text-transform: uppercase; margin-right: 8px; }
+  .cmp .sev { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: var(--amber-dim); color: var(--amber-deep); }
+  .ready-note { margin-top: 16px; font-weight: 600; color: var(--teal); }
+
+  /* ---- banners ---- */
+  .banner { border-radius: 12px; padding: 16px 20px; display: none; align-items: center; gap: 16px; margin-bottom: 16px; }
   .banner.show { display: flex; }
-  .banner.critical { background: var(--recall-dim); border: 1px solid var(--recall); }
-  .banner.critical .score { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--recall); line-height: 1; }
-  .banner.critical .txt b { color: var(--recall); }
-  .banner.decision { background: var(--ok-dim); border: 1px solid var(--ok); }
-  .banner.decision .score { font-size: 1.5rem; }
-  .banner .txt { font-size: 0.95rem; color: var(--text); }
-  .banner .txt small { display: block; color: var(--muted); font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; margin-top: 3px; }
+  .banner.critical { background: var(--amber-dim); border: 1px solid var(--amber); }
+  .banner.critical .score { font-family: var(--display); font-size: 2rem; color: var(--amber-deep); line-height: 1; }
+  .banner.critical .txt b { color: var(--amber-deep); }
+  .banner.decision { background: var(--green-dim); border: 1px solid var(--green); }
+  .banner.decision .score { font-family: var(--display); font-size: 1.6rem; color: var(--green); }
+  .banner .txt { font-size: 0.96rem; color: var(--ink); }
+  .banner .txt small { display: block; color: var(--muted); font-weight: 600; font-size: 11px; letter-spacing: 0.04em; margin-top: 3px; }
 
-  .feed { padding: 18px clamp(16px,3vw,30px) 40px; display: flex; flex-direction: column; gap: 12px; }
-  .empty { color: var(--muted); font-size: 0.95rem; max-width: 52ch; line-height: 1.55; padding: 40px 0; }
-  .empty .mono { font-family: var(--mono); color: var(--signal); font-size: 0.85rem; }
-
+  /* ---- live feed ---- */
+  .feedwrap { display: none; }
+  .feedwrap.show { display: block; }
+  .feed { display: flex; flex-direction: column; gap: 12px; }
   .msg {
-    background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--signal);
-    border-radius: 8px; padding: 13px 16px; animation: rise .45s ease;
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--teal);
+    border-radius: 12px; padding: 14px 18px; animation: rise .45s ease; box-shadow: 0 8px 20px rgba(22,37,38,0.04);
   }
-  .msg.veto { border-left-color: var(--recall); }
-  .msg.handoff { border-left-color: var(--signal); }
-  .msg.draft { border-left-color: var(--signal); }
-  .msg.human_action { border-left-color: var(--ok); }
+  .msg.veto { border-left-color: var(--amber); }
+  .msg.human_action { border-left-color: var(--green); }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   .msg .head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
-  .msg .who { font-weight: 650; font-size: 0.95rem; }
-  .msg .badge { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; background: var(--surface-2); color: var(--muted); }
-  .msg .badge.veto { background: var(--recall-dim); color: var(--recall); }
-  .msg .badge.human_action { background: var(--ok-dim); color: var(--ok); }
-  .msg .body { font-size: 0.92rem; line-height: 1.5; color: var(--text); }
+  .msg .who { font-weight: 700; font-size: 0.96rem; color: var(--ink); }
+  .msg .badge { font-family: var(--sans); font-weight: 700; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; background: var(--teal-dim); color: var(--teal); }
+  .msg .badge.veto { background: var(--amber-dim); color: var(--amber-deep); }
+  .msg .badge.human_action { background: var(--green-dim); color: var(--green); }
+  .msg .body { font-size: 0.93rem; line-height: 1.5; color: var(--ink); }
   .msg .ments { margin-top: 9px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .msg .arrow { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-  .chip { font-family: var(--mono); font-size: 11px; padding: 3px 9px; border-radius: 100px; border: 1px solid var(--signal); color: var(--signal); }
-  .chip.human { border-color: var(--ok); color: var(--ok); }
+  .msg .arrow { font-size: 11px; font-weight: 600; color: var(--muted); }
+  .chip { font-family: var(--sans); font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 100px; border: 1px solid var(--teal); color: var(--teal); background: var(--teal-dim); }
+  .chip.human { border-color: var(--amber); color: var(--amber-deep); background: var(--amber-dim); }
 
-  .note { padding: 0 clamp(16px,3vw,30px) 30px; color: var(--muted); font-size: 12px; line-height: 1.5; max-width: 70ch; }
-  .note b { color: var(--text); }
-  details.log { margin: 0 clamp(16px,3vw,30px) 24px; }
-  details.log summary { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
-  details.log pre { font-family: var(--mono); font-size: 11px; color: var(--muted); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px; max-height: 180px; overflow: auto; white-space: pre-wrap; margin-top: 10px; }
+  details.log { margin: 22px 0 0; }
+  details.log summary { font-family: var(--sans); font-weight: 600; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+  details.log pre { font-family: ui-monospace,Menlo,Consolas,monospace; font-size: 11px; color: var(--muted); background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px; max-height: 180px; overflow: auto; white-space: pre-wrap; margin-top: 10px; }
+  .note { margin-top: 24px; color: var(--muted); font-size: 12px; line-height: 1.5; max-width: 72ch; }
+  .note b { color: var(--ink); }
+
+  @media (prefers-reduced-motion: reduce) { .dot, .node.active .ic { animation: none; } }
 </style>
 </head>
 <body>
   <header>
-    <span class="brand"><span class="glyph">◬</span> SafetySignal Desk <span class="sub">· Live Autonomous Review</span></span>
+    <span class="brand"><span class="glyph">◬</span>SafetySignal Desk <span class="sub">· Live Autonomous Review</span></span>
     <span class="spacer"></span>
     <span class="pill" id="pill"><span class="dot"></span><span id="pilltext">Idle</span></span>
-    <button id="start">▶ Start autonomous review</button>
+    <button id="start" class="btn-primary" disabled>▶ Start autonomous review</button>
   </header>
 
   <div class="layout">
@@ -133,159 +164,164 @@
       <div id="nodes"></div>
     </aside>
 
-    <section class="feed-wrap">
-      <div class="banner critical" id="critBanner">
-        <span class="score">100<span style="font-size:.5em;color:var(--muted)">/100</span></span>
-        <span class="txt"><b>CRITICAL — human review required.</b><small id="critSub">Regulatory Risk blocked all automatic action.</small></span>
-      </div>
-      <div class="banner decision" id="decBanner">
-        <span class="score">✓</span>
-        <span class="txt"><b id="decText">Decision recorded in Band.</b><small>Relayed by the human recall manager.</small></span>
+    <section class="main">
+      <!-- Step 1: load the case file -->
+      <div class="loadbox" id="loadbox">
+        <div class="eyebrow">Step 1 — Open the case</div>
+        <h1>The case file</h1>
+        <p>Load the raw inputs a recall team would face: scattered consumer complaints, the
+          consumer label, the supplier ingredient sheet, and batch distribution. Then start the
+          review and watch seven agents coordinate <b>through Band</b> to decide what to do.</p>
+        <button id="loadCase" class="btn-load">📂 Load case file</button>
       </div>
 
-      <div class="feed" id="feed">
-        <div class="empty" id="empty">
-          Press <b>Start autonomous review</b> to open a real Band room. The seven agents
-          will coordinate <b>by themselves</b> — each wakes when Band delivers an
-          <span class="mono">@mention</span>, reads the upstream finding, and hands off to the next.
-          Nothing here sequences them; Band does.
+      <!-- Step 1 result: the case data -->
+      <div class="casepanel" id="casePanel">
+        <div class="case-head" id="caseHead">Case file</div>
+        <div class="stats" id="stats"></div>
+        <div class="mismatch" id="mismatch"></div>
+        <div class="complaints" id="complaints"></div>
+        <p class="ready-note">Case loaded. Press <b>Start autonomous review</b> (top right) to begin.</p>
+      </div>
+
+      <!-- Step 2: the live run -->
+      <div class="feedwrap" id="feedwrap">
+        <div class="banner critical" id="critBanner">
+          <span class="score">100<span style="font-size:.5em;color:var(--muted)">/100</span></span>
+          <span class="txt"><b>CRITICAL — human review required.</b><small id="critSub">Regulatory Risk blocked all automatic action.</small></span>
         </div>
+        <div class="banner decision" id="decBanner">
+          <span class="score">✓</span>
+          <span class="txt"><b id="decText">Decision recorded in Band.</b><small>Relayed by the human recall manager.</small></span>
+        </div>
+        <div class="feed" id="feed"></div>
+        <details class="log"><summary>Runtime log</summary><pre id="log"></pre></details>
+        <p class="note"><b>What you're watching:</b> the real event-driven runtime over Band. Each
+          card appears the moment Band delivers that agent's message — WebSocket is the fast path, a
+          reconciliation poll guarantees nothing is missed.</p>
       </div>
-
-      <details class="log"><summary>Runtime log</summary><pre id="log"></pre></details>
-      <p class="note"><b>What you're watching:</b> the real event-driven runtime
-        (<span style="font-family:var(--mono)">run_agents</span>) over Band's WebSocket. Each card
-        appears the moment Band pushes that agent's message into the room — live, unsequenced.</p>
     </section>
   </div>
 
 <script>
   var AGENTS = [
-    { name: "Complaint Intake Agent",                 role: "Extracts complaint facts" },
-    { name: "Pattern Detection Agent",                role: "Finds the batch cluster" },
-    { name: "Label and Ingredient Agent",             role: "Catches undeclared allergen" },
-    { name: "Batch Trace Agent",                      role: "Quantifies exposure" },
-    { name: "Recall Precedent Agent",                 role: "Pulls openFDA precedents" },
-    { name: "Regulatory Risk Agent",                  role: "Scores risk · blocks" },
-    { name: "Customer and Retailer Response Agent",   role: "Drafts comms (DRAFT)" },
-    { name: "Human Recall Manager",                   role: "Signs the decision", human: true },
+    { name: "Complaint Intake Agent",               role: "Extracts complaint facts" },
+    { name: "Pattern Detection Agent",              role: "Finds the batch cluster" },
+    { name: "Label and Ingredient Agent",           role: "Catches undeclared allergen" },
+    { name: "Batch Trace Agent",                    role: "Quantifies exposure" },
+    { name: "Recall Precedent Agent",               role: "Pulls openFDA precedents" },
+    { name: "Regulatory Risk Agent",                role: "Scores risk · blocks" },
+    { name: "Customer and Retailer Response Agent", role: "Drafts comms (DRAFT)" },
+    { name: "Human Recall Manager",                 role: "Signs the decision", human: true },
   ];
 
-  var nodeEls = {};
-  var nodesWrap = document.getElementById("nodes");
+  var nodeEls = {}, nodesWrap = document.getElementById("nodes");
   AGENTS.forEach(function (a) {
     var el = document.createElement("div");
     el.className = "node" + (a.human ? " human" : "");
-    el.innerHTML = '<span class="ic"></span><div><div class="nm">' + a.name.replace(" Agent", "") +
+    el.innerHTML = '<span class="ic"></span><div><div class="nm">' + a.name.replace(" Agent","") +
       '</div><div class="st">waiting</div></div>';
     nodesWrap.appendChild(el);
     nodeEls[a.name] = el;
   });
-
-  function setNode(name, cls, statusText) {
-    var el = nodeEls[name];
-    if (!el) return;
-    el.classList.remove("active", "flash");
-    if (cls) el.classList.add(cls);
-    if (cls === "active" || cls === "crit") {
-      // demote previously-active nodes to "acted"
-      Object.keys(nodeEls).forEach(function (n) {
-        if (n !== name) nodeEls[n].classList.remove("active");
-      });
-    }
-    var st = el.querySelector(".st");
-    if (statusText && st) st.textContent = statusText;
-  }
-  function markActed(name) {
-    var el = nodeEls[name];
-    if (el && !el.classList.contains("crit")) { el.classList.remove("active"); el.classList.add("acted"); }
-  }
-  function flash(name) {
+  function setNode(name, cls, status) {
     var el = nodeEls[name]; if (!el) return;
-    el.classList.add("flash");
-    setTimeout(function () { el.classList.remove("flash"); }, 1100);
+    if (cls === "active" || cls === "crit") {
+      Object.keys(nodeEls).forEach(function (n) { if (n !== name) nodeEls[n].classList.remove("active"); });
+    }
+    el.classList.remove("flash"); if (cls) el.classList.add(cls);
+    var st = el.querySelector(".st"); if (status && st) st.textContent = status;
+  }
+  function markActed(name) { var el = nodeEls[name]; if (el && !el.classList.contains("crit")) { el.classList.remove("active"); el.classList.add("acted"); } }
+  function flash(name) { var el = nodeEls[name]; if (!el) return; el.classList.add("flash"); setTimeout(function(){ el.classList.remove("flash"); }, 1100); }
+
+  var pill = document.getElementById("pill"), pilltext = document.getElementById("pilltext");
+  var startBtn = document.getElementById("start"), loadBtn = document.getElementById("loadCase");
+  var feed = document.getElementById("feed"), logEl = document.getElementById("log");
+
+  // ---- Step 1: load case ----
+  loadBtn.addEventListener("click", function () {
+    loadBtn.disabled = true; loadBtn.textContent = "Loading case + live openFDA…";
+    fetch("/case").then(function (r) { return r.json(); }).then(function (c) {
+      if (c.error) { loadBtn.disabled = false; loadBtn.textContent = "Retry load"; pilltext.textContent = "Load error"; return; }
+      renderCase(c);
+      document.getElementById("casePanel").classList.add("show");
+      loadBtn.textContent = "✓ Case loaded";
+      startBtn.disabled = false;
+      pilltext.textContent = "Case loaded";
+    }).catch(function () { loadBtn.disabled = false; loadBtn.textContent = "Retry load"; });
+  });
+
+  function renderCase(c) {
+    document.getElementById("caseHead").textContent = "Case file — " + c.product + " · batch " + c.batch;
+    var prec = c.precedent_count + " " + (c.precedent_live ? "live" : "cached");
+    document.getElementById("stats").innerHTML = [
+      ['<div class="v">' + c.complaint_count + '</div><div class="l">Complaints · ' + c.span_days + ' days</div>'],
+      ['<div class="v">' + c.target_batch_count + '</div><div class="l">On batch ' + c.batch + '</div>'],
+      ['<div class="v">' + c.units_in_inventory.toLocaleString() + '</div><div class="l">Units still in market</div>'],
+      ['<div class="v">' + c.precedent_count + '</div><div class="l">openFDA precedents (' + (c.precedent_live ? 'live' : 'cached') + ')</div>'],
+    ].map(function (s) { return '<div class="stat">' + s + '</div>'; }).join("");
+    document.getElementById("mismatch").innerHTML =
+      '<div class="t">⚠ Label / ingredient mismatch</div><div class="d">Consumer label declares <b>' +
+      (c.label_allergens.join(", ") || "—") + '</b> — but the supplier sheet adds <b>' +
+      (c.undeclared.join(", ") || "—") + '</b>. Suspected undeclared <b>' + (c.undeclared[0] || "allergen") + '</b>.</div>';
+    document.getElementById("complaints").innerHTML = c.sample_complaints.map(function (x) {
+      return '<div class="cmp"><span class="id">' + x.id + '</span><span class="sev">' + (x.severity || "n/a") +
+        '</span><div style="margin-top:6px">' + x.msg + '</div></div>';
+    }).join("");
   }
 
-  var pill = document.getElementById("pill");
-  var pilltext = document.getElementById("pilltext");
-  var feed = document.getElementById("feed");
-  var empty = document.getElementById("empty");
-  var logEl = document.getElementById("log");
-  var startBtn = document.getElementById("start");
-
+  // ---- Step 2: live run ----
   function addMsg(d) {
-    if (empty) { empty.remove(); empty = null; }
     var card = document.createElement("div");
     card.className = "msg " + (d.mtype || "");
-    var badge = (d.mtype || "finding").replace("_", " ");
     var ments = "";
     if (d.mentions && d.mentions.length) {
-      ments = '<div class="ments"><span class="arrow">hands off to</span>' +
-        d.mentions.map(function (m) {
-          var h = /Human/.test(m);
-          return '<span class="chip' + (h ? " human" : "") + '">@' + m.replace(" Agent", "") + '</span>';
-        }).join("") + '</div>';
+      ments = '<div class="ments"><span class="arrow">hands off to</span>' + d.mentions.map(function (m) {
+        var h = /Human/.test(m); return '<span class="chip' + (h ? " human" : "") + '">@' + m.replace(" Agent","") + '</span>';
+      }).join("") + '</div>';
     }
-    card.innerHTML =
-      '<div class="head"><span class="who">' + d.agent + '</span><span class="badge ' + (d.mtype || "") + '">' + badge + '</span></div>' +
-      '<div class="body">' + (d.summary || "") + '</div>' + ments;
+    card.innerHTML = '<div class="head"><span class="who">' + d.agent + '</span><span class="badge ' + (d.mtype || "") +
+      '">' + (d.mtype || "finding").replace("_"," ") + '</span></div><div class="body">' + (d.summary || "") + '</div>' + ments;
     feed.appendChild(card);
     card.scrollIntoView({ behavior: "smooth", block: "end" });
   }
 
   function handle(d) {
     if (d.type === "status") { pilltext.textContent = d.text; }
-    else if (d.type === "room") {
-      pill.className = "pill live"; pilltext.textContent = "Live · room " + d.id.slice(0, 8);
-    }
+    else if (d.type === "room") { pill.className = "pill live"; pilltext.textContent = "Live · room " + d.id.slice(0,8); }
     else if (d.type === "log") { logEl.textContent += d.text + "\n"; }
     else if (d.type === "message") {
       var crit = d.agent === "Regulatory Risk Agent";
-      setNode(d.agent, crit ? "crit" : "active", crit ? "BLOCKED" : "active");
+      setNode(d.agent, crit ? "crit" : "active", crit ? "blocked" : "active");
       (d.mentions || []).forEach(flash);
       addMsg(d);
       setTimeout(function () { markActed(d.agent); }, 1400);
-      if (crit) {
-        var b = document.getElementById("critBanner"); b.classList.add("show");
-        b.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      if (crit) { var b = document.getElementById("critBanner"); b.classList.add("show"); b.scrollIntoView({ behavior:"smooth", block:"center" }); }
       if (d.mtype === "human_action") {
-        document.getElementById("decText").textContent =
-          "Decision: " + (d.summary || "").replace(/^Decision:\s*/, "").split(".")[0];
+        document.getElementById("decText").textContent = "Decision: " + (d.summary || "").replace(/^Decision:\s*/, "").split(".")[0];
         document.getElementById("decBanner").classList.add("show");
         nodeEls["Human Recall Manager"].classList.add("acted");
       }
     }
-    else if (d.type === "done") {
-      pill.className = "pill done"; pilltext.textContent = "Complete · " + (d.count || 0) + " messages";
-      startBtn.disabled = false; startBtn.textContent = "↻ Run again";
-    }
-    else if (d.type === "error") {
-      pill.className = "pill"; pilltext.textContent = "Error";
-      logEl.textContent += "ERROR: " + d.text + "\n";
-      startBtn.disabled = false; startBtn.textContent = "↻ Retry";
-    }
+    else if (d.type === "done") { pill.className = "pill done"; pilltext.textContent = "Complete · " + (d.count || 0) + " messages"; startBtn.disabled = false; startBtn.textContent = "↻ Run again"; }
+    else if (d.type === "error") { pill.className = "pill"; pilltext.textContent = "Error"; logEl.textContent += "ERROR: " + d.text + "\n"; startBtn.disabled = false; startBtn.textContent = "↻ Retry"; }
   }
 
-  // Live stream
   var es = new EventSource("/events");
-  es.onmessage = function (e) {
-    try { handle(JSON.parse(e.data)); } catch (err) { /* keepalive */ }
-  };
+  es.onmessage = function (e) { try { handle(JSON.parse(e.data)); } catch (err) {} };
 
   startBtn.addEventListener("click", function () {
     startBtn.disabled = true; startBtn.textContent = "Connecting to Band…";
     pill.className = "pill"; pilltext.textContent = "Starting…";
-    // reset visuals
+    document.getElementById("loadbox").style.display = "none";
+    document.getElementById("casePanel").classList.remove("show");
+    document.getElementById("feedwrap").classList.add("show");
     document.getElementById("critBanner").classList.remove("show");
     document.getElementById("decBanner").classList.remove("show");
-    Object.values(nodeEls).forEach(function (el) {
-      el.classList.remove("active", "acted", "crit", "flash");
-      el.querySelector(".st").textContent = "waiting";
-    });
-    fetch("/start", { method: "POST" }).catch(function () {
-      pilltext.textContent = "Server unreachable"; startBtn.disabled = false;
-    });
+    feed.innerHTML = ""; logEl.textContent = "";
+    Object.values(nodeEls).forEach(function (el) { el.classList.remove("active","acted","crit","flash"); el.querySelector(".st").textContent = "waiting"; });
+    fetch("/start", { method: "POST" }).catch(function () { pilltext.textContent = "Server unreachable"; startBtn.disabled = false; });
   });
 </script>
 </body>
