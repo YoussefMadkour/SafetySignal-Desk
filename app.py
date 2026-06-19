@@ -296,6 +296,9 @@ if load_clicked:
     ss.messages = []
     ss.session = None
     ss.packet_md = None
+    # Rerun so the "Start Safety Review" button (rendered above, before this block)
+    # re-evaluates its disabled state now that the case is loaded.
+    st.rerun()
 
 # ---------------------------------------------------------------------------
 # Loaded case overview
