@@ -1,7 +1,7 @@
 {
   "_source": "openFDA Food Enforcement API",
   "_query": "reason_for_recall:\"undeclared peanut\"",
-  "_fetched_at": "2026-06-19T12:00:24.744825+00:00",
+  "_fetched_at": "2026-06-19T12:38:13.114491+00:00",
   "_live": true,
   "results": [
     {

@@ -50,16 +50,14 @@ python demo/replay.py                               # offline backup clip
   AI reasoning, the 100-pt score breakdown table, real openFDA precedent records, policy
   triggers, all 4 drafts, and a Reasoning Provenance (AI-vs-deterministic) section.
 
-## ⚠️ OPEN ITEM — autonomous WebSocket run is currently BROKEN (found 2026-06-19)
-- `run_agents --auto-approve` creates the room + recruits all 7 + human + posts kickoff
-  (REST all fine, room visible in app.band.ai) but **WS listeners never pick up the kickoff**
-  → "agents reached: []", times out after 150s. Agents never execute.
-- NOT caused by the LLM work (agents never ran). REST auth is fine. Suspect: Band key rotation
-  (checkpoint flagged it) OR Band-side change to how events vs messages push over the socket
-  (kickoff is posted via `post_event`/events endpoint, not a message with mentions — check
-  whether WS delivers events to agents). Needs debugging in `event_runtime.py` / `band_client` WS.
-- **Demo does NOT depend on this.** Streamlit sequenced mode posts the same real messages to
-  the same real Band room via REST (reliable). Offline backup: `demo/replay.py`.
+## ✅ Both coordination modes WORK (re-verified 2026-06-19 with LLM active)
+- **Event-driven WS** (`run_agents --auto-approve`): all 7 agents trigger via Band-delivered
+  @mentions over WebSocket; Regulatory Risk converges after batch+label+pattern+precedent arrive;
+  CRITICAL 100/100; 8 messages emitted. One earlier run showed "agents reached: []" — that was a
+  **transient Band hiccup**, not a bug (confirmed via `scripts/ws_probe.py`, which proves phx_join
+  is accepted and `message_created` is delivered on the `chat_room:` topic). Just re-run if it flaps.
+- **Sequenced** (Streamlit): unchanged, reliable, also posts real messages to the same Band room.
+- Diagnostic: `python -m scripts.ws_probe` dumps every raw Band WS frame (keep for live debugging).
 
 ## Model + testing (2026-06-19)
 - Using **`gpt-5.4-mini`** (`OPENAI_MODEL` in `.env`). Probed all candidates: 4o-mini, 5.4-mini,
