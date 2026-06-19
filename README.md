@@ -72,6 +72,21 @@ The same run is visible in the Band web app — every agent is a registered Band
 
 > 🎬 A full narrated walkthrough is in [`demo/safetysignal_demo.mp4`](demo/safetysignal_demo.mp4).
 
+## Output: the Safety Decision Packet
+
+When the human recall manager approves an action, SafetySignal Desk exports the
+review as two artifacts (also downloadable from the app). A real sample from the
+demo case lives in [`examples/`](examples/):
+
+| Artifact | What it is |
+|---|---|
+| [`safety_decision_packet.md`](examples/safety_decision_packet.md) · [`.pdf`](examples/safety_decision_packet.pdf) | The **audit-ready packet** — case summary, key findings, the 6-category risk score, **real openFDA recall precedents**, per-agent reasoning (marked `llm` vs `deterministic`), recommended **and blocked** actions, the four draft communications, and the recorded human decision. |
+| [`audit_trail.json`](examples/audit_trail.json) | The **machine-readable trail** — every agent message in the Band room, each with its `agent_name`, one-line `summary`, full `structured_data` finding, `@mentions` handoff, `confidence`, and `timestamp`. The Band room *is* the audit trail; this is its export. |
+
+The packet's numbers (risk score, complaint counts, batch exposure, the
+undeclared-allergen detection) are **deterministic** and reproducible; only the
+prose is model-generated, and each agent's reasoning is tagged accordingly.
+
 ## Agent Architecture
 
 Coordination happens in a real Band room. Each agent posts a **structured JSON

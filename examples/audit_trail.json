@@ -1,0 +1,305 @@
+{
+  "case": "SafetySignal Desk",
+  "band_room_id": null,
+  "entry_count": 8,
+  "entries": [
+    {
+      "room_id": "offline",
+      "agent_name": "Complaint Intake Agent",
+      "message_type": "finding",
+      "summary": "Extracted 14 complaints for Cedar & Oat Cocoa Protein Bar. 9 describe allergic reactions, 5 mention peanut allergy, 2 mention urgent care or a doctor. Batch CO-CPB-0426 appears in 12 complaints.",
+      "structured_data": {
+        "agent": "complaint_intake",
+        "product": "Cedar & Oat Cocoa Protein Bar",
+        "complaint_count": 14,
+        "batch_codes_detected": [
+          "CO-CPB-0426"
+        ],
+        "symptoms": [
+          "rash",
+          "hives",
+          "swelling",
+          "shortness of breath",
+          "stomach pain",
+          "nausea",
+          "throat irritation",
+          "itchy throat",
+          "allergic reaction",
+          "upset stomach"
+        ],
+        "allergen_mentions": [
+          "peanut allergy",
+          "peanut",
+          "peanuts",
+          "almonds",
+          "milk"
+        ],
+        "medical_escalations": 2,
+        "high_risk_complaints": 8,
+        "missing_fields": [
+          "purchase receipt",
+          "product photo",
+          "medical documentation"
+        ],
+        "confidence": 0.92,
+        "intake_summary": "Consumers are reporting allergic-type reactions after eating the Cedar & Oat Cocoa Protein Bar, with several complaints tied to batch CO-CPB-0426. Multiple reports mention peanut allergy concerns and note that the label references almonds and milk but does not mention peanuts. Some complaints also describe a different taste or throat irritation, and a few reports mention retailer questions about whether peanuts are included.",
+        "severity_note": "The most serious reports describe shortness of breath and medical attention after eating the product.",
+        "reasoning_mode": "llm"
+      },
+      "mentions": [],
+      "confidence": 0.92,
+      "timestamp": ""
+    },
+    {
+      "room_id": "offline",
+      "agent_name": "Pattern Detection Agent",
+      "message_type": "handoff",
+      "summary": "Cluster detected \u2014 signal HIGH. 12/14 complaints (86%) tie to batch CO-CPB-0426 over 6 days.",
+      "structured_data": {
+        "agent": "pattern_detection",
+        "cluster_detected": true,
+        "signal_strength": "HIGH",
+        "cluster_reason": "12 of 14 complaints reference batch CO-CPB-0426 within 6 days",
+        "batch_concentration": 0.86,
+        "symptom_repetition": {
+          "allergic_reaction": 9,
+          "peanut_allergy": 5,
+          "urgent_care_or_doctor": 2
+        },
+        "recommended_next_agents": [
+          "LabelIngredientAgent",
+          "BatchTraceAgent",
+          "RegulatoryRiskAgent"
+        ],
+        "confidence": 0.9
+      },
+      "mentions": [],
+      "confidence": 0.9,
+      "timestamp": ""
+    },
+    {
+      "room_id": "offline",
+      "agent_name": "Label and Ingredient Agent",
+      "message_type": "veto",
+      "summary": "CRITICAL mismatch: supplier sheet declares peanut, but the consumer label lists only milk, almond. Suspected undeclared peanut allergen.",
+      "structured_data": {
+        "agent": "label_ingredient",
+        "consumer_label_allergens": [
+          "milk",
+          "almond"
+        ],
+        "supplier_sheet_allergens": [
+          "milk",
+          "almond",
+          "peanut"
+        ],
+        "undeclared_allergen_detected": true,
+        "undeclared_allergen": "peanut",
+        "evidence": [
+          "Consumer label does not list peanut",
+          "Supplier ingredient sheet lists peanut flour or peanut cross-contact",
+          "CONSUMER LABEL: \"Ingredients: Rolled oats, whey protein isolate, dark chocolate chips, almond butter, brown rice syrup, cocoa powder, sea salt, natural vanilla flavor.\"",
+          "CONSUMER LABEL: \"Contains: Milk, almonds.\"",
+          "SUPPLIER INGREDIENT SHEET: \"Ingredients supplied: Whey protein isolate, cocoa powder, chocolate chips, almond butter powder, peanut flour trace blend, natural vanilla flavor.\"",
+          "SUPPLIER INGREDIENT SHEET: \"Allergen Declaration: Milk, almonds, peanuts.\"",
+          "SUPPLIER INGREDIENT SHEET: \"Cross-contact warning: Peanut flour is used on the same production line and may be present in the cocoa protein blend.\""
+        ],
+        "confidence": 0.91,
+        "analysis": "The consumer label does not declare peanut, but the supplier ingredient sheet explicitly identifies peanuts in the allergen declaration and notes peanut flour may be present in the blend. This mismatch creates a risk for consumers with peanut allergy because the product may contain an undeclared peanut allergen. The label also lists only milk and almonds under \"Contains,\" which does not match the supplier\u2019s peanut declaration.",
+        "reasoning_mode": "llm"
+      },
+      "mentions": [],
+      "confidence": 0.91,
+      "timestamp": ""
+    },
+    {
+      "room_id": "offline",
+      "agent_name": "Batch Trace Agent",
+      "message_type": "finding",
+      "summary": "Batch CO-CPB-0426: 12,000 produced, 8,200 sold, 3,800 still in inventory/retail across 4 retailers (CA, NY, Online, TX).",
+      "structured_data": {
+        "agent": "batch_trace",
+        "batch_code": "CO-CPB-0426",
+        "units_produced": 12000,
+        "units_sold": 8200,
+        "units_in_inventory": 3800,
+        "retailers_affected": [
+          "FitCart Online",
+          "HarvestLane Stores",
+          "Northstar Market",
+          "WellBasket Retail"
+        ],
+        "locations_affected": [
+          "CA",
+          "NY",
+          "Online",
+          "TX"
+        ],
+        "recommended_action": "Immediate batch hold and retailer notification",
+        "confidence": 1.0
+      },
+      "mentions": [],
+      "confidence": 1.0,
+      "timestamp": ""
+    },
+    {
+      "room_id": "offline",
+      "agent_name": "Recall Precedent Agent",
+      "message_type": "finding",
+      "summary": "STRONG precedent match. 5 real FDA undeclared-peanut enforcement records found (live). Examples: Zingerman's Coffee Company, Vita Warehouse Corp., South Asian Food Inc..",
+      "structured_data": {
+        "agent": "recall_precedent",
+        "precedent_match": "STRONG",
+        "similar_recall_patterns": [
+          {
+            "source": "openFDA Food Enforcement",
+            "recalling_firm": "Zingerman's Coffee Company",
+            "recall_number": "H-0179-2026",
+            "reason": "Undeclared peanut",
+            "classification": "Class I",
+            "typical_action": "Firm-initiated recall or public safety notice",
+            "recommended_language": "People with peanut allergy may risk serious allergic reaction if they consume the affected product."
+          },
+          {
+            "source": "openFDA Food Enforcement",
+            "recalling_firm": "Vita Warehouse Corp.",
+            "recall_number": "H-0212-2025",
+            "reason": "Contains undeclared peanut",
+            "classification": "Class I",
+            "typical_action": "Firm-initiated recall or public safety notice",
+            "recommended_language": "People with peanut allergy may risk serious allergic reaction if they consume the affected product."
+          },
+          {
+            "source": "openFDA Food Enforcement",
+            "recalling_firm": "South Asian Food Inc.",
+            "recall_number": "H-0008-2025",
+            "reason": "Contains undeclared peanut",
+            "classification": "Class I",
+            "typical_action": "Firm-initiated recall or public safety notice",
+            "recommended_language": "People with peanut allergy may risk serious allergic reaction if they consume the affected product."
+          }
+        ],
+        "recommended_language": "People with peanut allergy may risk serious allergic reaction if they consume the affected product.",
+        "sources_used": [
+          "openFDA Food Enforcement (live)"
+        ],
+        "data_is_live": true,
+        "confidence": 0.86,
+        "precedent_analysis": "The provided openFDA Food Enforcement records show three Class I precedents involving undeclared peanut or contains undeclared peanut, each associated with a firm-initiated recall or public safety notice. For a suspected undeclared-peanut case involving Cedar & Oat Cocoa Protein Bar (batch CO-CPB-0426), these records support using the same general response pattern and risk framing seen in the precedents, without making any determination about the product itself. The cited cases indicate that consumer notices for undeclared peanut typically emphasize the serious allergic reaction risk for people with peanut allergy.",
+        "reasoning_mode": "llm"
+      },
+      "mentions": [],
+      "confidence": 0.86,
+      "timestamp": ""
+    },
+    {
+      "room_id": "offline",
+      "agent_name": "Regulatory Risk Agent",
+      "message_type": "veto",
+      "summary": "Risk CRITICAL (score 100/100) \u2014 HUMAN_REVIEW_REQUIRED. 5 company-policy escalation triggers fired. Blocking unsafe automatic messaging; routing to the human recall manager.",
+      "structured_data": {
+        "agent": "regulatory_risk",
+        "risk_level": "CRITICAL",
+        "risk_score": 100,
+        "score_breakdown": {
+          "Complaint volume and timing": {
+            "points": 20,
+            "max": 20,
+            "reason": "14 complaints within 6 days; across 4 channels"
+          },
+          "Batch concentration": {
+            "points": 20,
+            "max": 20,
+            "reason": "12/14 complaints on same batch (86%)"
+          },
+          "Medical severity": {
+            "points": 20,
+            "max": 20,
+            "reason": "2 medical-escalation mentions"
+          },
+          "Label or ingredient mismatch": {
+            "points": 25,
+            "max": 25,
+            "reason": "potential undeclared allergen"
+          },
+          "Market exposure": {
+            "points": 10,
+            "max": 10,
+            "reason": "3,800 units still available"
+          },
+          "Public recall precedent": {
+            "points": 5,
+            "max": 5,
+            "reason": "strong public recall precedent match"
+          }
+        },
+        "decision": "HUMAN_REVIEW_REQUIRED",
+        "policy_triggers": [
+          "12 complaints on one batch within 6 days (>5/7d)",
+          "complaints mention urgent care / doctor / swelling",
+          "suspected undeclared major allergen (peanut)",
+          "retailer/customer reports label inconsistency",
+          "3,800 units remain in market/inventory (>1,000)"
+        ],
+        "recommended_actions": [
+          "Place affected batch on internal hold",
+          "Notify affected retailers to pause sale pending review",
+          "Prepare recall decision packet for QA, legal, and regulatory review",
+          "Collect missing customer evidence",
+          "Prepare regulatory escalation assessment for human review"
+        ],
+        "blocked_actions": [
+          "Do not send public recall notice without human approval",
+          "Do not tell customers the product is confirmed safe",
+          "Do not dismiss complaints as isolated"
+        ],
+        "reason": "This case warrants CRITICAL risk and human review because the complaint pattern is highly concentrated and fast-moving: 14 complaints arrived within 6 days across 4 channels, with 12 tied to the same batch (86%). The escalation is further elevated by medical-severity mentions, a potential undeclared allergen and label inconsistency, and the fact that 3,800 units remain in market or inventory. The fired policy triggers also include urgent-care/doctor/swelling references and a strong public recall precedent match, supporting immediate escalation.",
+        "disclaimer": "Operational escalation only. Not legal, medical, or regulatory advice.",
+        "confidence": 0.9,
+        "reasoning_mode": "llm"
+      },
+      "mentions": [
+        "Human Recall Manager"
+      ],
+      "confidence": 0.9,
+      "timestamp": ""
+    },
+    {
+      "room_id": "offline",
+      "agent_name": "Customer and Retailer Response Agent",
+      "message_type": "draft",
+      "summary": "Drafted retailer hold notice, customer support reply, internal QA task, and public statement \u2014 all marked DRAFT, not approved for sending. Awaiting human recall manager decision.",
+      "structured_data": {
+        "agent": "customer_response",
+        "requires_human_approval": true,
+        "reasoning_mode": "llm",
+        "retailer_hold_notice": "DRAFT \u2014 Pending human review and approval.\n\nSubject: Immediate hold request \u2014 Cedar & Oat Cocoa Protein Bar, Batch CO-CPB-0426\n\nPlease place an immediate hold on all inventory of Cedar & Oat Cocoa Protein Bar, batch CO-CPB-0426, across all locations and fulfillment channels, including FitCart Online, HarvestLane Stores, Northstar Market, and WellBasket Retail.\n\nReason for hold: a potential undeclared peanut allergen concern has been identified and is under review.\n\nRequested actions:\n- Stop sale and distribution of the affected batch immediately.\n- Quarantine all remaining units of batch CO-CPB-0426.\n- Do not relabel, rework, or dispose of product until further instruction.\n- Confirm on-hand quantities, locations, and any units already shipped or transferred.\n- Preserve lot codes, shipping records, and related traceability documentation.\n\nAffected inventory: approximately 3,800 units.\n\nPlease acknowledge receipt and provide a status update as soon as possible. This notice is a draft and requires human approval before external use.",
+        "customer_support_reply": "DRAFT \u2014 Pending human review and approval.\n\nThank you for contacting us about Cedar & Oat Cocoa Protein Bar, batch CO-CPB-0426.\n\nWe are currently reviewing a potential undeclared peanut allergen concern associated with this batch. Out of an abundance of caution, we recommend that customers who have a peanut allergy or sensitivity do not consume the product until the review is complete.\n\nIf you have already consumed the product and are experiencing symptoms of an allergic reaction, seek medical attention immediately.\n\nPlease retain the product packaging, including the batch code, and contact us with your purchase details so we can assist with documentation and next steps.\n\nThis message is a draft and requires human approval before use.",
+        "internal_qa_task": "DRAFT \u2014 Pending human review and approval.\n\nTask: Investigate potential undeclared peanut allergen in Cedar & Oat Cocoa Protein Bar, batch CO-CPB-0426.\n\nScope:\n- Confirm ingredient sourcing, formulation, and production records for batch CO-CPB-0426.\n- Review allergen changeover, sanitation, and line clearance documentation.\n- Verify label artwork, packaging reconciliation, and any rework or repack activity.\n- Check for cross-contact risks from shared equipment, ingredients, or storage.\n- Reconcile finished goods inventory and distribution across FitCart Online, HarvestLane Stores, Northstar Market, and WellBasket Retail.\n- Identify all affected lots, production dates, and downstream shipments.\n\nDeliverables:\n- Preliminary root-cause assessment.\n- Traceability summary for the affected 3,800 units.\n- Recommendation on whether escalation, market action, or additional testing is warranted.\n- Supporting records and photos, if available.\n\nPriority: High. This task is a draft and requires human approval before execution.",
+        "public_statement_draft": "DRAFT \u2014 Pending human review and approval.\n\nWe are reviewing a potential undeclared peanut allergen concern involving Cedar & Oat Cocoa Protein Bar, batch CO-CPB-0426.\n\nOut of an abundance of caution, customers who have a peanut allergy or sensitivity should not consume product from this batch until further notice.\n\nThe affected batch was distributed through FitCart Online, HarvestLane Stores, Northstar Market, and WellBasket Retail. We are working with our retail partners and reviewing distribution records.\n\nConsumers who have purchased this product should retain the packaging and contact customer support with the batch code and purchase details.\n\nThis statement is a draft and requires human approval before any external release."
+      },
+      "mentions": [
+        "Human Recall Manager"
+      ],
+      "confidence": null,
+      "timestamp": ""
+    },
+    {
+      "room_id": "offline",
+      "agent_name": "Human Recall Manager",
+      "message_type": "human_action",
+      "summary": "Decision: APPROVE_BATCH_HOLD. Approve immediate batch hold and retailer notification. Prepare recall packet for QA, legal, and regulatory review.",
+      "structured_data": {
+        "actor": "human_recall_manager",
+        "decision": "APPROVE_BATCH_HOLD",
+        "notes": "Approve immediate batch hold and retailer notification. Prepare recall packet for QA, legal, and regulatory review.",
+        "timestamp": "2026-06-19T15:11:03.506739+00:00"
+      },
+      "mentions": [
+        "Customer and Retailer Response Agent"
+      ],
+      "confidence": null,
+      "timestamp": "2026-06-19T15:11:03.506739+00:00"
+    }
+  ]
+}
